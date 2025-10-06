@@ -28,6 +28,31 @@ func Configure(p *config.Provider) {
 			TerraformName: "keycloak_authentication_flow",
 		}
 
+		// Configure connection details to expose sensitive fields
+		r.Sensitive.AdditionalConnectionDetailsFn = func(attr map[string]interface{}) (map[string][]byte, error) {
+			conn := map[string][]byte{}
+
+			// Expose client_secret with both legacy and simplified key names
+			if clientSecret, ok := attr["client_secret"].(string); ok && clientSecret != "" {
+				conn["attribute.client_secret"] = []byte(clientSecret) // Legacy format for backward compatibility
+				conn["clientSecret"] = []byte(clientSecret)             // Simplified format
+			}
+
+			// Expose client_id
+			if clientID, ok := attr["client_id"].(string); ok && clientID != "" {
+				conn["clientID"] = []byte(clientID)
+				conn["attribute.client_id"] = []byte(clientID) // Legacy format
+			}
+
+			// Expose service_account_user_id if available
+			if serviceAccountUserID, ok := attr["service_account_user_id"].(string); ok && serviceAccountUserID != "" {
+				conn["serviceAccountUserId"] = []byte(serviceAccountUserID)
+				conn["attribute.service_account_user_id"] = []byte(serviceAccountUserID) // Legacy format
+			}
+
+			return conn, nil
+		}
+
 	})
 
 	p.AddResourceConfigurator("keycloak_openid_client_default_scopes", func(r *config.Resource) {
