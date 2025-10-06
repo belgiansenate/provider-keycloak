@@ -68,17 +68,17 @@ UPTEST_VERSION = v1.3.0
 # ====================================================================================
 # Setup Images
 
-REGISTRY_ORGS ?= xpkg.upbound.io/crossplane-contrib
+REGISTRY_ORGS ?= ghcr.io/belgiansenate
 IMAGES = $(PROJECT_NAME)
 -include build/makelib/imagelight.mk
 
 # ====================================================================================
 # Setup XPKG
 
-XPKG_REG_ORGS ?= xpkg.upbound.io/crossplane-contrib
+XPKG_REG_ORGS ?= ghcr.io/belgiansenate
 # NOTE(hasheddan): skip promoting on xpkg.upbound.io as channel tags are
 # inferred.
-XPKG_REG_ORGS_NO_PROMOTE ?= xpkg.upbound.io/crossplane-contrib
+XPKG_REG_ORGS_NO_PROMOTE ?= ghcr.io/belgiansenate
 XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 
