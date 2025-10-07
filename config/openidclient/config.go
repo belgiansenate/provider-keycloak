@@ -32,22 +32,22 @@ func Configure(p *config.Provider) {
 		r.Sensitive.AdditionalConnectionDetailsFn = func(attr map[string]interface{}) (map[string][]byte, error) {
 			conn := map[string][]byte{}
 
-			// Expose client_secret with both legacy and simplified key names
+			// Expose client_secret with simplified key name
+			// Note: attribute.client_secret is automatically added by Upjet
 			if clientSecret, ok := attr["client_secret"].(string); ok && clientSecret != "" {
-				conn["attribute.client_secret"] = []byte(clientSecret) // Legacy format for backward compatibility
-				conn["clientSecret"] = []byte(clientSecret)             // Simplified format
+				conn["clientSecret"] = []byte(clientSecret)
 			}
 
 			// Expose client_id
+			// Note: attribute.client_id is automatically added by Upjet
 			if clientID, ok := attr["client_id"].(string); ok && clientID != "" {
 				conn["clientID"] = []byte(clientID)
-				conn["attribute.client_id"] = []byte(clientID) // Legacy format
 			}
 
 			// Expose service_account_user_id if available
+			// Note: attribute.service_account_user_id is automatically added by Upjet
 			if serviceAccountUserID, ok := attr["service_account_user_id"].(string); ok && serviceAccountUserID != "" {
 				conn["serviceAccountUserId"] = []byte(serviceAccountUserID)
-				conn["attribute.service_account_user_id"] = []byte(serviceAccountUserID) // Legacy format
 			}
 
 			return conn, nil
