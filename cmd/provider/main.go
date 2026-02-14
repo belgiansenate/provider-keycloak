@@ -41,6 +41,7 @@ import (
 	"github.com/crossplane-contrib/provider-keycloak/internal/clients"
 	controllerCluster "github.com/crossplane-contrib/provider-keycloak/internal/controller/cluster"
 	controllerNamespaced "github.com/crossplane-contrib/provider-keycloak/internal/controller/namespaced"
+	"github.com/crossplane-contrib/provider-keycloak/internal/controller/secretlabeler"
 	"github.com/crossplane-contrib/provider-keycloak/internal/features"
 	// "github.com/crossplane-contrib/provider-keycloak/internal/version"
 )
@@ -225,6 +226,9 @@ func main() {
 		kingpin.FatalIfError(controllerCluster.Setup(mgr, optsCluster), "Cannot setup Keycloak controllers")
 		kingpin.FatalIfError(controllerNamespaced.Setup(mgr, optsNamespaced), "Cannot setup Keycloak controllers")
 	}
+
+	// Setup secret labeler controllers to add labels/annotations to connection secrets
+	kingpin.FatalIfError(secretlabeler.SetupSecretLabelers(mgr), "Cannot setup secret labeler controllers")
 
 	kingpin.FatalIfError(mgr.Start(ctrl.SetupSignalHandler()), "Cannot start controller manager")
 }
