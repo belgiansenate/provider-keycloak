@@ -21,6 +21,7 @@ package secretlabeler
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -32,7 +33,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	xpv1 "github.com/crossplane/crossplane-runtime/v2/apis/common/v1"
 	"github.com/crossplane/crossplane-runtime/v2/pkg/errors"
 )
 
@@ -132,8 +132,8 @@ func (r *SecretLabelerReconciler) Reconcile(ctx context.Context, req reconcile.R
 		if client.IgnoreNotFound(err) != nil {
 			return reconcile.Result{}, errors.Wrap(err, "cannot get connection secret")
 		}
-		// Secret doesn't exist yet, requeue
-		return reconcile.Result{RequeueAfter: xpv1.LongWait}, nil
+		// Secret doesn't exist yet, requeue after 1 minute
+		return reconcile.Result{RequeueAfter: 1 * time.Minute}, nil
 	}
 
 	// Check if update is needed
