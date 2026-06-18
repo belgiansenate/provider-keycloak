@@ -41,6 +41,34 @@ func Configure(p *config.Provider) {
 				"authentication_flow_binding_overrides.direct_grant_id",
 			},
 		}
+
+		// Publish the client's credentials as connection details so consumers
+		// (e.g. ArgoCD) can mount them from the connection secret. client_secret
+		// is a computed attribute for CONFIDENTIAL clients, so it is present in
+		// the Terraform state here.
+		r.Sensitive.AdditionalConnectionDetailsFn = func(attr map[string]interface{}) (map[string][]byte, error) {
+			conn := map[string][]byte{}
+
+			// Expose client_secret with simplified key name
+			// Note: attribute.client_secret is automatically added by Upjet
+			if clientSecret, ok := attr["client_secret"].(string); ok && clientSecret != "" {
+				conn["clientSecret"] = []byte(clientSecret)
+			}
+
+			// Expose client_id
+			// Note: attribute.client_id is automatically added by Upjet
+			if clientID, ok := attr["client_id"].(string); ok && clientID != "" {
+				conn["clientID"] = []byte(clientID)
+			}
+
+			// Expose service_account_user_id if available
+			// Note: attribute.service_account_user_id is automatically added by Upjet
+			if serviceAccountUserID, ok := attr["service_account_user_id"].(string); ok && serviceAccountUserID != "" {
+				conn["serviceAccountUserId"] = []byte(serviceAccountUserID)
+			}
+
+			return conn, nil
+		}
 	})
 
 	p.AddResourceConfigurator("keycloak_openid_client_default_scopes", func(r *config.Resource) {

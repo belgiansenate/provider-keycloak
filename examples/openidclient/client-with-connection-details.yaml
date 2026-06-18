@@ -1,0 +1,43 @@
+apiVersion: openidclient.keycloak.crossplane.io/v1alpha1
+kind: Client
+metadata:
+  name: argocd-oidc-client
+  annotations:
+    meta.upbound.io/example-id: openidclient/v1alpha1/client-with-connection-details
+  labels:
+    testing.upbound.io/example-name: argocd_oidc
+spec:
+  forProvider:
+    realm_id: master
+    client_id: sen-p-argocd
+    access_type: CONFIDENTIAL
+    standardFlowEnabled: true
+    validRedirectUris:
+      - "https://argocd.cluster.local/auth/callback"
+      - "https://argocd.cluster.local/api/dex/callback"
+  # Connection details will be written to this secret
+  # With the connection details configuration, the secret will contain:
+  # - clientSecret (simplified key)
+  # - attribute.client_secret (legacy key for backward compatibility)
+  # - clientID
+  # - attribute.client_id
+  # - serviceAccountUserId (if service accounts are enabled)
+  # - attribute.service_account_user_id
+  writeConnectionSecretToRef:
+    name: argocd-oidc-secret
+    namespace: argo-system
+  providerConfigRef:
+    name: default
+
+---
+
+apiVersion: realm.keycloak.crossplane.io/v1alpha1
+kind: Realm
+metadata:
+  name: master
+  labels:
+    testing.upbound.io/example-name: realm
+spec:
+  forProvider:
+    enabled: true
+    realm: master
