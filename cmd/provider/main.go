@@ -44,6 +44,7 @@ import (
 	"github.com/crossplane-contrib/provider-keycloak/internal/clients"
 	controllerCluster "github.com/crossplane-contrib/provider-keycloak/internal/controller/cluster"
 	controllerNamespaced "github.com/crossplane-contrib/provider-keycloak/internal/controller/namespaced"
+	"github.com/crossplane-contrib/provider-keycloak/internal/controller/secretlabeler"
 	"github.com/crossplane-contrib/provider-keycloak/internal/features"
 )
 
@@ -239,6 +240,10 @@ func main() {
 
 	kingpin.FatalIfError(conversion.RegisterConversions(optsCluster.Provider, optsNamespaced.Provider, mgr.GetScheme()), "Cannot initialize the webhook conversion registry")
 	kingpin.FatalIfError(mgr.Add(sessionCleanupRunnable{}), "Cannot register session cleanup runnable")
+
+	// Setup secret labeler controllers to add labels/annotations to connection secrets
+	kingpin.FatalIfError(secretlabeler.SetupSecretLabelers(mgr), "Cannot setup secret labeler controllers")
+
 	kingpin.FatalIfError(mgr.Start(ctrl.SetupSignalHandler()), "Cannot start controller manager")
 }
 
